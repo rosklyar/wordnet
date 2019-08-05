@@ -27,12 +27,17 @@ public class UpgradedBFSShortestCommonAncestor implements ShortestCommonAncestor
 
     @Override
     public int ancestor(int x, int y) {
-        return 0;
+        return ancestorSubset(of(x), of(y));
     }
 
     @Override
     public int lengthSubset(Iterable<Integer> x, Iterable<Integer> y) {
         return minAncestorSearch(x, y).getValue0();
+    }
+
+    @Override
+    public int ancestorSubset(Iterable<Integer> x, Iterable<Integer> y) {
+        return minAncestorSearch(x, y).getValue1();
     }
 
     private Pair<Integer, Integer> minAncestorSearch(Iterable<Integer> x, Iterable<Integer> y) {
@@ -55,7 +60,21 @@ public class UpgradedBFSShortestCommonAncestor implements ShortestCommonAncestor
             var yWaveProcessed = proceedWave(currentWaveY, distToY, distToX, markedY, markedX);
             currentWaveY = yWaveProcessed.getValue0();
 
-            lengthUpperBound = min(lengthUpperBound, min(xWaveProcessed.getValue1(), yWaveProcessed.getValue1()));
+            int wavesAncestor;
+            int wavesMinLength;
+            if (xWaveProcessed.getValue1() < yWaveProcessed.getValue1()) {
+                wavesAncestor = xWaveProcessed.getValue2();
+                wavesMinLength = xWaveProcessed.getValue1();
+            } else {
+                wavesAncestor = yWaveProcessed.getValue2();
+                wavesMinLength = yWaveProcessed.getValue1();
+            }
+            if (wavesMinLength < lengthUpperBound) {
+                lengthUpperBound = wavesMinLength;
+                minAncestor = wavesAncestor;
+            }
+
+            lengthUpperBound = min(lengthUpperBound, wavesMinLength);
             currentBFSDistance++;
         }
 
@@ -93,10 +112,5 @@ public class UpgradedBFSShortestCommonAncestor implements ShortestCommonAncestor
             wave.add(s);
         }
         return wave;
-    }
-
-    @Override
-    public int ancestorSubset(Iterable<Integer> firstSubset, Iterable<Integer> secondSubset) {
-        return 0;
     }
 }

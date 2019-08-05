@@ -46,7 +46,7 @@ public class CompareBFSWordNetTest {
 
     @Setup
     public void setup() {
-        testCases = generateTestSet(10, 5);
+        testCases = generateTestSet(1000, 5);
     }
 
     @Benchmark
