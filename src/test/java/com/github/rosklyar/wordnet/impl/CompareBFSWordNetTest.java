@@ -16,6 +16,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -32,11 +33,15 @@ import static java.util.Arrays.stream;
 @Fork(value = 2, jvmArgs = {"-Xms2G", "-Xmx2G"}, warmups = 2)
 public class CompareBFSWordNetTest {
 
-    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt");
+    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt", Helper::buildHypernymsDigraph);
+    private static final Pair<Digraph, Map<String, List<Integer>>> doubleDigraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt", Helper::buildDoubleHypernymsDigraph);
+
     private static final WordNet wordNetSimple = new DigraphWordNet(digraph.getValue1(), new SimpleBFSShortestCommonAncestor(digraph.getValue0()));
     private static final WordNet wordNetUpgraded = new DigraphWordNet(digraph.getValue1(), new UpgradedBFSShortestCommonAncestor(digraph.getValue0()));
+    private static final WordNet wordNetDoubleDigraph = new DigraphWordNet(doubleDigraph.getValue1(), new DoubleGraphShortestCommonAncestor(doubleDigraph.getValue0()));
     private static final Outcast outcastSimple = new WordNetOutcast(wordNetSimple);
     private static final Outcast outcastUpgraded = new WordNetOutcast(wordNetUpgraded);
+    private static final Outcast outcastDoubleDigraph = new WordNetOutcast(wordNetDoubleDigraph);
     private static final List<String> nouns = Helper.nouns("synsets.txt");
     private List<String[]> testCases;
 
@@ -46,7 +51,7 @@ public class CompareBFSWordNetTest {
 
     @Setup
     public void setup() {
-        testCases = generateTestSet(1000, 5);
+        testCases = generateTestSet(10, 5);
     }
 
     @Benchmark
@@ -63,11 +68,22 @@ public class CompareBFSWordNetTest {
         }
     }
 
+    @Benchmark
+    public void outcastDoubleDigraph() {
+        for (String[] testCase : testCases) {
+            outcastDoubleDigraph.outcast(testCase);
+        }
+    }
+
     @Test
     public void correctness() {
-        List<String[]> testCases = generateTestSet(10000, 5);
+        List<String[]> testCases = generateTestSet(1000, 5);
         for (String[] testCase : testCases) {
-            Assertions.assertEquals(outcastUpgraded.outcast(testCase), outcastSimple.outcast(testCase));
+            //Assertions.assertEquals(outcastUpgraded.outcast(testCase), outcastSimple.outcast(testCase));
+            System.out.println("Test case=" + Arrays.toString(testCase));
+            String result = outcastDoubleDigraph.outcast(testCase);
+            System.out.println("Result=" + result);
+            Assertions.assertEquals(result, outcastSimple.outcast(testCase));
         }
     }
 

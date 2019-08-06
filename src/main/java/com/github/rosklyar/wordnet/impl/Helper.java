@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
@@ -17,7 +18,7 @@ import static org.javatuples.Pair.with;
 
 public class Helper {
 
-    public static Pair<Digraph, Map<String, List<Integer>>> buildDigraph(String synonymsFile, String hypernymsFile) {
+    public static Pair<Digraph, Map<String, List<Integer>>> buildDigraph(String synonymsFile, String hypernymsFile, BiFunction<String, Integer, Digraph> digraphBiFunction) {
         var synonymsInput = new In(synonymsFile);
         int verticesInSynonymsSetGraph = 0;
         var nounToSynonymSetId = new HashMap<String, List<Integer>>();
@@ -28,7 +29,7 @@ public class Helper {
                     .forEach(noun -> nounToSynonymSetId.computeIfAbsent(noun, k -> new ArrayList<>()).add(parseInt(line[0])));
             verticesInSynonymsSetGraph++;
         }
-        return with(buildHypernymsDigraph(hypernymsFile, verticesInSynonymsSetGraph), nounToSynonymSetId);
+        return with(digraphBiFunction.apply(hypernymsFile, verticesInSynonymsSetGraph), nounToSynonymSetId);
     }
 
     public static List<String> nouns(String synonymsFile) {
@@ -42,7 +43,7 @@ public class Helper {
         return new ArrayList<>(nouns);
     }
 
-    private static Digraph buildHypernymsDigraph(String hypernymsFile, int synonymsCount) {
+    public static Digraph buildHypernymsDigraph(String hypernymsFile, int synonymsCount) {
         var digraph = new Digraph(synonymsCount);
         var hypernymsInput = new In(hypernymsFile);
         while (hypernymsInput.hasNextLine()) {
@@ -50,7 +51,31 @@ public class Helper {
             int id = parseInt(line[0]);
             stream(line)
                     .skip(1)
-                    .forEach(hypernymsId -> digraph.addEdge(id, parseInt(hypernymsId)));
+                    .forEach(hypernymsId -> {
+                        if(parseInt(hypernymsId) == 79541) {
+                            System.out.println("79541");
+                        }
+                        digraph.addEdge(id, parseInt(hypernymsId));
+                    });
+        }
+        return digraph;
+    }
+
+    public static Digraph buildDoubleHypernymsDigraph(String hypernymsFile, int synonymsCount) {
+        var digraph = new Digraph(synonymsCount * 2);
+        var hypernymsInput = new In(hypernymsFile);
+        while (hypernymsInput.hasNextLine()) {
+            var line = hypernymsInput.readLine().split(",");
+            int id = parseInt(line[0]);
+            int strokeIdVertex = id + synonymsCount;
+            digraph.addEdge(id, strokeIdVertex);
+            stream(line)
+                    .skip(1)
+                    .forEach(hypernymsId -> {
+                        int hypernymId = parseInt(hypernymsId);
+                        digraph.addEdge(id, hypernymId);
+                        digraph.addEdge(hypernymId + synonymsCount, strokeIdVertex);
+                    });
         }
         return digraph;
     }

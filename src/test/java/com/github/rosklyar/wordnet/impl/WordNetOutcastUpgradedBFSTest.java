@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WordNetOutcastUpgradedBFSTest {
 
-    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt");
+    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt", Helper::buildHypernymsDigraph);
     private static final WordNet wordNet = new DigraphWordNet(digraph.getValue1(), new UpgradedBFSShortestCommonAncestor(digraph.getValue0()));
     private static final Outcast outcast = new WordNetOutcast(wordNet);
 

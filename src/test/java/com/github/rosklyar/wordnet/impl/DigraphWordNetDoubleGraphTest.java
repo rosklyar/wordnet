@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DigraphWordNetSimpleBFSTest {
+class DigraphWordNetDoubleGraphTest {
 
-    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt", Helper::buildHypernymsDigraph);
-    private static final WordNet wordNet = new DigraphWordNet(digraph.getValue1(), new SimpleBFSShortestCommonAncestor(digraph.getValue0()));
+    private static final Pair<Digraph, Map<String, List<Integer>>> digraph = Helper.buildDigraph("synsets.txt", "hypernyms.txt", Helper::buildDoubleHypernymsDigraph);
+    private static final WordNet wordNet = new DigraphWordNet(digraph.getValue1(), new DoubleGraphShortestCommonAncestor(digraph.getValue0()));
 
     @Test
     void checkNouns() {
