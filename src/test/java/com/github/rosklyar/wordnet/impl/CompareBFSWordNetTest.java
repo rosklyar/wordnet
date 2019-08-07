@@ -79,11 +79,7 @@ public class CompareBFSWordNetTest {
     public void correctness() {
         List<String[]> testCases = generateTestSet(1000, 5);
         for (String[] testCase : testCases) {
-            //Assertions.assertEquals(outcastUpgraded.outcast(testCase), outcastSimple.outcast(testCase));
-            System.out.println("Test case=" + Arrays.toString(testCase));
-            String result = outcastDoubleDigraph.outcast(testCase);
-            System.out.println("Result=" + result);
-            Assertions.assertEquals(result, outcastSimple.outcast(testCase));
+            Assertions.assertEquals(outcastUpgraded.outcast(testCase), outcastSimple.outcast(testCase));
         }
     }
 

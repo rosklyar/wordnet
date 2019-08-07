@@ -52,9 +52,6 @@ public class Helper {
             stream(line)
                     .skip(1)
                     .forEach(hypernymsId -> {
-                        if(parseInt(hypernymsId) == 79541) {
-                            System.out.println("79541");
-                        }
                         digraph.addEdge(id, parseInt(hypernymsId));
                     });
         }
